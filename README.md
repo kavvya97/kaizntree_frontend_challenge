@@ -1,3 +1,7 @@
+# CODE SANDBOX LINK
+
+https://codesandbox.io/p/github/kavvya97/kaizntree_frontend_challenge/master?file=%2Fsrc%2Fcomponents%2FInputCheckbox%2Findex.tsx&workspaceId=364585ae-c8d9-4f70-82c3-aba6ee186217
+
 # Instructions
 
 Welcome to Kaizntree's frontend interview challenge.
