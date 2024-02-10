@@ -13,6 +13,8 @@ export function App() {
   const { data: paginatedTransactions, ...paginatedTransactionsUtils } = usePaginatedTransactions()
   const { data: transactionsByEmployee, ...transactionsByEmployeeUtils } = useTransactionsByEmployee()
   const [isLoading, setIsLoading] = useState(false)
+  // #6:  View more button not working as expected
+  const [filteredByEmployee, setFilteredByEmployee] = useState(false);
 
   const transactions = useMemo(
     () => paginatedTransactions?.data ?? transactionsByEmployee ?? null,
@@ -22,16 +24,19 @@ export function App() {
   const loadAllTransactions = useCallback(async () => {
     setIsLoading(true)
     transactionsByEmployeeUtils.invalidateData()
-
+    // #6:  View more button not working as expected
+    setFilteredByEmployee(false)
     await employeeUtils.fetchAll()
-    await paginatedTransactionsUtils.fetchAll()
-
+    // #5: Employees filter not available during loading more data
     setIsLoading(false)
+    await paginatedTransactionsUtils.fetchAll()
   }, [employeeUtils, paginatedTransactionsUtils, transactionsByEmployeeUtils])
 
   const loadTransactionsByEmployee = useCallback(
     async (employeeId: string) => {
       paginatedTransactionsUtils.invalidateData()
+      // #6:  View more button not working as expected
+      setFilteredByEmployee(true)
       await transactionsByEmployeeUtils.fetchById(employeeId)
     },
     [paginatedTransactionsUtils, transactionsByEmployeeUtils]
@@ -63,6 +68,10 @@ export function App() {
           onChange={async (newValue) => {
             if (newValue === null) {
               return
+            } else if (newValue.id === "") {
+              // #3: Cannot select All Employees after selecting an employee
+              await loadAllTransactions();
+              return;
             }
 
             await loadTransactionsByEmployee(newValue.id)
@@ -74,7 +83,10 @@ export function App() {
         <div className="KaizntreeGrid">
           <Transactions transactions={transactions} />
 
-          {transactions !== null && (
+          {transactions !== null &&
+            // #6: View more button not working as expected
+            !filteredByEmployee && 
+            paginatedTransactions?.nextPage !== null && (
             <button
               className="KaizntreeButton"
               disabled={paginatedTransactionsUtils.loading}
